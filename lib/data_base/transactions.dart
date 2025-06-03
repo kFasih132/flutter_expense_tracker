@@ -37,6 +37,9 @@ class Transactions {
   static const String columnDescription = 'Description';
   static const String columnTransactionType = 'TransactionType';
   static const String columnNote = 'Note';
+  static const String expense = 'expense';
+  static const String income = 'income';
+
 
   static const String createTableSQL = '''
   CREATE TABLE IF NOT EXISTS $tableName (
@@ -47,7 +50,7 @@ class Transactions {
       $columnAmount REAL NOT NULL,
       $columnCategoryId INTEGER NOT NULL,
       $columnDescription TEXT,
-      $columnTransactionType TEXT NOT NULL CHECK(type IN ('expense', 'income')),
+      $columnTransactionType TEXT NOT NULL CHECK(type IN ('$expense', '$income')),
       $columnNote TEXT
       FOREIGN KEY ($columnUserId) REFERENCES ${User.tableName}($columnUserId),
       FOREIGN KEY ($columnCategoryId) REFERENCES ${Categories.tableName}($columnCategoryId)
@@ -149,4 +152,11 @@ class Transactions {
         transactionType.hashCode ^
         note.hashCode;
   }
+}
+
+
+
+enum TransactionType {
+  expense,
+  income,
 }

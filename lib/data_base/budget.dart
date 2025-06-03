@@ -22,6 +22,7 @@ class Budget {
     this.endDate,
     this.isActive,
   });
+ 
 
   static const String tableName = 'budget';
   static const String columnBudgetId = 'budgetId';
@@ -46,8 +47,6 @@ class Budget {
       FOREIGN KEY ($columnCategoryId) REFERENCES ${Categories.tableName}(${Categories.columnCategoryId})
     )
   ''';
-
-  
 
   Budget copyWith({
     ValueGetter<int?>? budgetId,
@@ -87,8 +86,14 @@ class Budget {
       userId: map['userId'],
       categoryId: map['categoryId']?.toInt(),
       budgetAmount: map['budgetAmount'],
-      startDate: map['startDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['startDate']) : null,
-      endDate: map['endDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['endDate']) : null,
+      startDate:
+          map['startDate'] != null
+              ? DateTime.fromMillisecondsSinceEpoch(map['startDate'])
+              : null,
+      endDate:
+          map['endDate'] != null
+              ? DateTime.fromMillisecondsSinceEpoch(map['endDate'])
+              : null,
       isActive: map['isActive'],
     );
   }
@@ -105,25 +110,25 @@ class Budget {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is Budget &&
-      other.budgetId == budgetId &&
-      other.userId == userId &&
-      other.categoryId == categoryId &&
-      other.budgetAmount == budgetAmount &&
-      other.startDate == startDate &&
-      other.endDate == endDate &&
-      other.isActive == isActive;
+        other.budgetId == budgetId &&
+        other.userId == userId &&
+        other.categoryId == categoryId &&
+        other.budgetAmount == budgetAmount &&
+        other.startDate == startDate &&
+        other.endDate == endDate &&
+        other.isActive == isActive;
   }
 
   @override
   int get hashCode {
     return budgetId.hashCode ^
-      userId.hashCode ^
-      categoryId.hashCode ^
-      budgetAmount.hashCode ^
-      startDate.hashCode ^
-      endDate.hashCode ^
-      isActive.hashCode;
+        userId.hashCode ^
+        categoryId.hashCode ^
+        budgetAmount.hashCode ^
+        startDate.hashCode ^
+        endDate.hashCode ^
+        isActive.hashCode;
   }
 }

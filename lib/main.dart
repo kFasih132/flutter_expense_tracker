@@ -1,6 +1,9 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/theme/theme_widget.dart';
 
-void main() {
+Future<void> main() async {
+ 
   runApp(const MyApp());
 }
 
@@ -11,10 +14,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      //it can found the theme  in theme_widget.dart in theme folder
+      theme: getThemeData,
       home: const MyHomePage(),
     );
   }
@@ -29,10 +30,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   void navigate() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SecondPage()),
-    );
+    
   }
 
   @override

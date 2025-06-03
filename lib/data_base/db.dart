@@ -26,7 +26,6 @@ class DbService {
         db.execute(Categories.createTableSQL);
         db.execute(Transactions.createTableSQL);
         db.execute(Budget.createTableSQL);
-        
       },
     );
   }
@@ -67,9 +66,9 @@ class DbService {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
-   ///////////////////////////////////////////////////////////////////
-   ///
-   ///
+  ///////////////////////////////////////////////////////////////////
+  ///
+  ///
 
   // Fetch all data from tables
   Future<List<User>> getAllUsers() async {
@@ -79,10 +78,12 @@ class DbService {
       return User.fromMap(maps[i]);
     });
   }
+
   Future<List<Transactions>> getAllTransactions() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps =
-        await db.query(Transactions.tableName);
+    final List<Map<String, dynamic>> maps = await db.query(
+      Transactions.tableName,
+    );
     return List.generate(maps.length, (i) {
       return Transactions.fromMap(maps[i]);
     });
@@ -90,12 +91,14 @@ class DbService {
 
   Future<List<Categories>> getAllCategories() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps =
-        await db.query(Categories.tableName);
+    final List<Map<String, dynamic>> maps = await db.query(
+      Categories.tableName,
+    );
     return List.generate(maps.length, (i) {
       return Categories.fromMap(maps[i]);
     });
   }
+
   Future<List<Budget>> getAllBudget() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(Budget.tableName);
@@ -117,6 +120,7 @@ class DbService {
     }
     return null;
   }
+
   Future<Transactions?> getTransactionById(String transactionId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -129,6 +133,7 @@ class DbService {
     }
     return null;
   }
+
   Future<Categories?> getCategoryById(String categoryId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -141,7 +146,29 @@ class DbService {
     }
     return null;
   }
-  
+
+  // Query For getting Transactions by Category or sum up and get total amount spent in a category
+  Future<double> getTotalSpentByTransactionType({
+    required String userId,
+    required String transactionType,
+  }) async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      '''
+      SELECT SUM(${Transactions.columnAmount}) AS TotalExpense
+      FROM ${Transactions.tableName}
+      WHERE ${User.columnUserId} = ?
+        AND ${Transactions.columnTransactionType} = '$transactionType';
+      ''',
+      [userId],
+    );
+
+    if (result.isNotEmpty && result.first['TotalExpense'] != null) {
+      return result.first['TotalExpense'] as double;
+    } else {
+      return 0.0; // Return 0.0 if no expenses found or sum is null
+    }
+  }
 
   Future<void> close() async {
     final db = await database;
