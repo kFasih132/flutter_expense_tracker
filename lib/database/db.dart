@@ -1,7 +1,7 @@
-import 'package:flutter_expense_traker/data_base/budget.dart';
-import 'package:flutter_expense_traker/data_base/category.dart';
-import 'package:flutter_expense_traker/data_base/transactions.dart';
-import 'package:flutter_expense_traker/data_base/user.dart';
+import 'package:flutter_expense_traker/database/budget.dart';
+import 'package:flutter_expense_traker/database/category.dart';
+import 'package:flutter_expense_traker/database/transactions.dart';
+import 'package:flutter_expense_traker/database/user.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 

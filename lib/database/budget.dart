@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
-import 'package:flutter_expense_traker/data_base/category.dart';
-import 'package:flutter_expense_traker/data_base/user.dart';
+import 'package:flutter_expense_traker/database/category.dart';
+import 'package:flutter_expense_traker/database/user.dart';
 
 class Budget {
   int? budgetId;
@@ -48,6 +48,8 @@ class Budget {
     )
   ''';
 
+  
+
   Budget copyWith({
     ValueGetter<int?>? budgetId,
     ValueGetter<String?>? userId,
@@ -86,14 +88,8 @@ class Budget {
       userId: map['userId'],
       categoryId: map['categoryId']?.toInt(),
       budgetAmount: map['budgetAmount'],
-      startDate:
-          map['startDate'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(map['startDate'])
-              : null,
-      endDate:
-          map['endDate'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(map['endDate'])
-              : null,
+      startDate: map['startDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['startDate']) : null,
+      endDate: map['endDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['endDate']) : null,
       isActive: map['isActive'],
     );
   }
@@ -110,25 +106,25 @@ class Budget {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
+  
     return other is Budget &&
-        other.budgetId == budgetId &&
-        other.userId == userId &&
-        other.categoryId == categoryId &&
-        other.budgetAmount == budgetAmount &&
-        other.startDate == startDate &&
-        other.endDate == endDate &&
-        other.isActive == isActive;
+      other.budgetId == budgetId &&
+      other.userId == userId &&
+      other.categoryId == categoryId &&
+      other.budgetAmount == budgetAmount &&
+      other.startDate == startDate &&
+      other.endDate == endDate &&
+      other.isActive == isActive;
   }
 
   @override
   int get hashCode {
     return budgetId.hashCode ^
-        userId.hashCode ^
-        categoryId.hashCode ^
-        budgetAmount.hashCode ^
-        startDate.hashCode ^
-        endDate.hashCode ^
-        isActive.hashCode;
+      userId.hashCode ^
+      categoryId.hashCode ^
+      budgetAmount.hashCode ^
+      startDate.hashCode ^
+      endDate.hashCode ^
+      isActive.hashCode;
   }
 }

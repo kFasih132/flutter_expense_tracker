@@ -1,9 +1,10 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/layouts/home.dart';
+import 'package:flutter_expense_traker/layouts/profile.dart';
+import 'package:flutter_expense_traker/layouts/statistic.dart';
 import 'package:flutter_expense_traker/theme/theme_widget.dart';
 
 Future<void> main() async {
- 
   runApp(const MyApp());
 }
 
@@ -16,66 +17,70 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       //it can found the theme  in theme_widget.dart in theme folder
       theme: getThemeData,
-      home: const MyHomePage(),
+      home: const MainPageWithNav(),
+      checkerboardOffscreenLayers: true,
+      showSemanticsDebugger: false,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class MainPageWithNav extends StatefulWidget {
+  const MainPageWithNav({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MainPageWithNav> createState() => _MainPageWithNavState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  void navigate() {
-    
+class _MainPageWithNavState extends State<MainPageWithNav> {
+  int _selectedIndex = 0;
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
+  static const List<Widget> _widgetOptions = <Widget>[
+    HomePage(),
+    StatisticPage(),
+    ProfilePage(),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(child: _widgetOptions.elementAt(_selectedIndex)),
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.add),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        notchMargin: 12,
+        shape: CircularNotchedRectangle(),
+        height: 65,
+        child: Row(
           children: [
-            Container(height: 100, width: 100, color: Colors.red),
-            SizedBox(height: 20),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    height: 100,
-                    width: 100,
-                    color: const Color.fromRGBO(0, 0, 0, 1),
-                  ),
-                  SizedBox(width: 20),
-                  Container(height: 100, width: 100, color: Colors.amber),
-                ],
-              ),
+            IconButton(
+              onPressed: () {
+                _onItemTapped(0);
+              },
+              icon: const Icon(Icons.home, size: 28),
+            ),
+            IconButton(
+              onPressed: () {
+                _onItemTapped(1);
+              },
+              icon: const Icon(Icons.stacked_bar_chart_outlined, size: 28),
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: () {
+                _onItemTapped(2);
+              },
+              icon: const Icon(Icons.person, size: 28),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class SecondPage extends StatelessWidget {
-  const SecondPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Text('second page'),
       ),
     );
   }
