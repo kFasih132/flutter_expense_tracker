@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/layouts/bottom_sheet.dart';
 import 'package:flutter_expense_traker/layouts/home.dart';
 import 'package:flutter_expense_traker/layouts/profile.dart';
 import 'package:flutter_expense_traker/layouts/statistic.dart';
@@ -50,10 +51,7 @@ class _MainPageWithNavState extends State<MainPageWithNav> {
       body: SafeArea(child: _widgetOptions.elementAt(_selectedIndex)),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: const MyFloatingActionButton(),
       bottomNavigationBar: BottomAppBar(
         notchMargin: 12,
         shape: CircularNotchedRectangle(),
@@ -82,6 +80,35 @@ class _MainPageWithNavState extends State<MainPageWithNav> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class MyFloatingActionButton extends StatefulWidget {
+  const MyFloatingActionButton({super.key});
+
+  @override
+  State<MyFloatingActionButton> createState() => _MyFloatingActionButtonState();
+}
+
+class _MyFloatingActionButtonState extends State<MyFloatingActionButton> {
+  void onAddTap() {
+    showBottomSheet(
+      context: context,
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+          child: const BottomSheetDialogForAddingTransaction(),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: onAddTap,
+      child: const Icon(Icons.add),
     );
   }
 }

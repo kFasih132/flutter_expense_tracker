@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
-import 'package:flutter_expense_traker/database/category.dart';
-import 'package:flutter_expense_traker/database/user.dart';
+import 'package:flutter_expense_traker/data_base/category.dart';
+import 'package:flutter_expense_traker/data_base/user.dart';
 
 class Budget {
   int? budgetId;

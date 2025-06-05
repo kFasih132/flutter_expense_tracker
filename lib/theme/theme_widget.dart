@@ -14,9 +14,7 @@ ThemeData get getThemeData {
       dynamicSchemeVariant: DynamicSchemeVariant.tonalSpot,
     ),
 
-
     useMaterial3: true,
-
 
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.deepPurple,
