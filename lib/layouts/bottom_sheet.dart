@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expense_traker/widgets/round_container.dart';
+import 'package:intl/intl.dart';
 
 class BottomSheetDialogForAddingTransaction extends StatefulWidget {
   const BottomSheetDialogForAddingTransaction({super.key});
@@ -14,9 +15,35 @@ class _BottomSheetDialogForAddingTransactionState
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  String groupValue = 'Expense'; // Example group value for radio button
+  final String expense = 'Expense';
+  final String income = 'Income';
+  void onChanged(String? value) {
+    setState(() {
+      groupValue = value!;
+    });
+  }
 
+  void onTapDatePicker(BuildContext context) {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    ).then((selectedDate) {
+      if (selectedDate != null) {
+        final formatted = DateFormat('dd/MM/yyyy').format(selectedDate);
+        _dateController.text = formatted;
+        print('Selected date: $selectedDate');
+      }
+    });
+  }
+
+  // Focus nodes for the text fields
   final FocusNode _amountFocusNode = FocusNode();
   final FocusNode _noteFocusNode = FocusNode();
+  final FocusNode _dateFocusNode = FocusNode();
 
   @override
   void dispose() {
@@ -24,6 +51,8 @@ class _BottomSheetDialogForAddingTransactionState
     _noteController.dispose();
     _amountFocusNode.dispose();
     _noteFocusNode.dispose();
+    _dateController.dispose();
+    _dateFocusNode.dispose();
     super.dispose();
   }
 
@@ -35,6 +64,7 @@ class _BottomSheetDialogForAddingTransactionState
         key: _formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 20,
           children: [
             const Text('add Transaction'),
@@ -42,22 +72,45 @@ class _BottomSheetDialogForAddingTransactionState
             MyTextFeild(
               controller: _amountController,
               focusNode: _amountFocusNode,
-              labelText: 'Amount',
               hintText: 'Enter amount',
-              icon: Icons.money,
               keyboardType: TextInputType.number,
-              maxLength: 20,
+              maxLength: 10,
             ),
             const CategoryList(),
             MyTextFeild(
               controller: _noteController,
               focusNode: _noteFocusNode,
-
-              labelText: 'Note',
               hintText: 'Enter note',
-              icon: Icons.note,
               keyboardType: TextInputType.text,
-              maxLines: 3,
+              maxLines: 2,
+            ),
+            ListTile(
+              title: const Text('Transaction Type'),
+              subtitle: Row(
+                children: [
+                  Radio.adaptive(
+                    value: expense,
+                    groupValue: groupValue,
+                    onChanged: onChanged,
+                  ),
+                  const Text('Expense'),
+                  Radio.adaptive(
+                    value: income,
+                    groupValue: groupValue,
+                    onChanged: onChanged,
+                  ),
+                  const Text('Income'),
+                ],
+              ),
+            ),
+            MyTextFeild(
+              controller: _dateController,
+              focusNode: _dateFocusNode,
+              labelText: 'Date',
+              hintText: 'Select date',
+              icon: Icons.calendar_month_rounded,
+              keyboardType: TextInputType.none,
+              onTap: () => onTapDatePicker(context),
             ),
           ],
         ),
@@ -79,6 +132,7 @@ class MyTextFeild extends StatelessWidget {
     this.maxLines,
     this.maxLength,
     this.validator,
+    this.onTap,
   });
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -90,31 +144,42 @@ class MyTextFeild extends StatelessWidget {
   final int? maxLines;
   final int? maxLength;
   final String? Function(String?)? validator;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.blueGrey.shade600,
+        borderRadius: BorderRadius.circular(12),
+        //TODO: add real color from theme
+        color: Color(0xffe5e7eb),
       ),
-      child: TextFormField(
-        controller: controller,
-        focusNode: focusNode,
-        maxLines: maxLines,
-        maxLength: maxLength,
-        obscureText: obscureText ?? false,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          border: null,
-          labelText: labelText,
-          hintText: hintText,
-          icon: icon != null ? Icon(icon) : null,
+      child: Center(
+        child: TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          onTap: onTap,
+          obscureText: obscureText ?? false,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            errorBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+
+            labelText: labelText,
+            hintText: hintText,
+            icon: icon != null ? Icon(icon) : null,
+          ),
+          validator: validator,
+          onTapOutside: (event) {
+            FocusScope.of(context).unfocus();
+          },
         ),
-        validator: validator,
-        onTapOutside: (event) {
-          FocusScope.of(context).unfocus();
-        },
       ),
     );
   }

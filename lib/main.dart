@@ -17,7 +17,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       //it can found the theme  in theme_widget.dart in theme folder
-      theme: getThemeData,
+      theme: ThemeData.light(useMaterial3: true).copyWith(
+        bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+        ),
+        textTheme: getThemeData.textTheme,
+      ),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.light,
       home: const MainPageWithNav(),
       checkerboardOffscreenLayers: true,
       showSemanticsDebugger: false,
@@ -93,12 +100,26 @@ class MyFloatingActionButton extends StatefulWidget {
 
 class _MyFloatingActionButtonState extends State<MyFloatingActionButton> {
   void onAddTap() {
-    showBottomSheet(
+    showModalBottomSheet(
       context: context,
+      showDragHandle: true,
+      enableDrag: true,
+      elevation: 8,
+      isScrollControlled: true,
+      isDismissible: true,
+      sheetAnimationStyle: AnimationStyle(
+        curve: Curves.decelerate,
+        duration: Duration(milliseconds: 300),
+        reverseCurve: Curves.bounceOut,
+        reverseDuration: Duration(milliseconds: 200),
+      ),
       builder: (_) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
-          child: const BottomSheetDialogForAddingTransaction(),
+          child: SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.8,
+            child: const BottomSheetDialogForAddingTransaction(),
+          ),
         );
       },
     );
@@ -112,3 +133,15 @@ class _MyFloatingActionButtonState extends State<MyFloatingActionButton> {
     );
   }
 }
+
+
+// Friday Tasks
+
+/** first yar Color Scheme set kr 
+ * Second yar ThemeData set kr
+ * Phr BottomSHeetDialogForAddingTransaction widget bnana h
+ * Jis main form bnana h
+ * Phr CategoryList widget bnana h
+ * ProfilePage widget bnana h
+ * StatisticPage widget bnana h
+ */

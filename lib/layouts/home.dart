@@ -1,7 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_expense_traker/data_base/db.dart';
-import 'package:flutter_expense_traker/widgets/round_container.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,7 +14,7 @@ class _HomePageState extends State<HomePage> {
     return CustomScrollView(
       slivers: [
         MySliverAppeBar(name: 'Flutter'),
-        SliverToBoxAdapter(child: _StatsCard()),
+        SliverToBoxAdapter(child: StatsCard()),
         SliverAnimatedList(
           initialItemCount: 10, // Example item count
           itemBuilder: (context, index, animation) {
@@ -60,14 +58,14 @@ class MySliverAppeBar extends StatelessWidget {
   }
 }
 
-class _StatsCard extends StatefulWidget {
-  const _StatsCard({super.key});
+class StatsCard extends StatefulWidget {
+  const StatsCard({super.key});
 
   @override
-  State<_StatsCard> createState() => __StatsCardState();
+  State<StatsCard> createState() => _StatsCardState();
 }
 
-class __StatsCardState extends State<_StatsCard> {
+class _StatsCardState extends State<StatsCard> {
   final Duration animDuration = const Duration(milliseconds: 250);
 
   int touchedIndex = -1;
