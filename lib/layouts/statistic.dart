@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/theme/theme_extension.dart';
 import 'package:flutter_expense_traker/widgets/round_container.dart';
 import 'package:flutter_expense_traker/widgets/round_percentage_bar.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -26,75 +27,86 @@ class _StatisticPageState extends State<StatisticPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsetsGeometry.all(20.0),
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
       child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            //Calendar
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.grey[200],
-              ),
-              padding: const EdgeInsets.all(12.0),
-              child: TableCalendar(
-                locale: 'en_US',
-                rowHeight: 43,
-                headerStyle: const HeaderStyle(
-                  titleCentered: true,
-                  formatButtonVisible: false,
-                  leftChevronIcon: Icon(Icons.chevron_left),
-                  rightChevronIcon: Icon(Icons.chevron_right),
+        child: Padding(
+          padding: EdgeInsetsGeometry.symmetric(horizontal: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 80),
+              //Calendar
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Theme.of(context).colorTheme.lightGreyColor,
                 ),
-                availableGestures: AvailableGestures.all,
-                focusedDay: today,
-                firstDay: DateTime.utc(2000),
-                lastDay: DateTime.utc(2100),
-                onDaySelected: onDaySelected,
-                selectedDayPredicate: (day) => isSameDay(day, today),
-                pageAnimationEnabled: true,
-                pageAnimationDuration: Duration(milliseconds: 200),
-                formatAnimationCurve: Curves.bounceIn,
+                padding: const EdgeInsets.all(12.0),
+                child: TableCalendar(
+                  locale: 'en_US',
+                  rowHeight: 43,
+                  headerStyle: const HeaderStyle(
+                    titleCentered: true,
+                    formatButtonVisible: false,
+                    leftChevronIcon: Icon(Icons.chevron_left),
+                    rightChevronIcon: Icon(Icons.chevron_right),
+                  ),
+                  availableGestures: AvailableGestures.all,
+                  focusedDay: today,
+                  firstDay: DateTime.utc(2000),
+                  lastDay: DateTime.utc(2100),
+                  onDaySelected: onDaySelected,
+                  selectedDayPredicate: (day) => isSameDay(day, today),
+                  pageAnimationEnabled: true,
+                  pageAnimationDuration: Duration(milliseconds: 200),
+                  formatAnimationCurve: Curves.bounceIn,
+                ),
               ),
-            ),
 
-            const SizedBox(height: 20),
-            // Statistics Section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                RoundContainer(
-                  color: Color(0xFF4CAF50),
-                  radius: 16,
-                  padding: 20,
-                  child: Column(
-                    spacing: 8,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text('Total Income'), Text('10000')],
-                  ),
+              const SizedBox(height: 20),
+
+              // Statistics Section
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     RoundContainer(
+              //       color: Theme.of(context).colorTheme.lightBlueColor,
+              //       radius: 16,
+              //       padding: 20,
+              //       child: Column(
+              //         spacing: 8,
+              //         mainAxisAlignment: MainAxisAlignment.start,
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         children: [Text('Total Income'), Text('10000')],
+              //       ),
+              //     ),
+              //     RoundContainer(
+              //       color: Theme.of(context).colorTheme.orangeColor,
+              //       radius: 16,
+              //       padding: 20,
+              //       child: Column(
+              //         spacing: 8,
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         mainAxisAlignment: MainAxisAlignment.center,
+              //         children: [Text('Total Expence'), Text('10000')],
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              Text(
+                'Analytics',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
                 ),
-                RoundContainer(
-                  color: Color(0xFF4CAF50),
-                  radius: 16,
-                  padding: 20,
-                  child: Column(
-                    spacing: 8,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [Text('Total Expence'), Text('10000')],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            PercentageWidget(),
-            const SizedBox(height: 20),
-            PieChartWidget(),
-          ],
+              ),
+              const SizedBox(height: 30),
+
+              PercentageWidget(),
+              const SizedBox(height: 60),
+              PieChartWidget(), const SizedBox(height: 50),
+            ],
+          ),
         ),
       ),
     );
@@ -112,7 +124,7 @@ class PercentageWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Color(0xFF4CAF50),
+        color: Theme.of(context).colorTheme.lightGreyColor,
       ),
       child: Stack(
         children: [
@@ -121,8 +133,20 @@ class PercentageWidget extends StatelessWidget {
             child: RichText(
               text: TextSpan(
                 text: 'You have spend ',
+                style: TextStyle(
+                  color: Theme.of(context).colorTheme.darkPurpleColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
                 children: [
-                  TextSpan(text: '100\n'),
+                  TextSpan(
+                    text: '100\n',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorTheme.orangeColor,
+                    ),
+                  ),
                   TextSpan(text: 'this month'),
                 ],
               ),
@@ -133,6 +157,11 @@ class PercentageWidget extends StatelessWidget {
             child: Text(
               //TODO : Replace with actual month and year
               'april 2020',
+              style: TextStyle(
+                color: Theme.of(context).colorTheme.darkGreyColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           Align(
@@ -140,7 +169,7 @@ class PercentageWidget extends StatelessWidget {
             child: SizedBox(
               height: 32,
               child: RoundPercentageBar(
-                color: Colors.amberAccent,
+                color: Theme.of(context).colorTheme.lightBlueColor,
                 percentage: 80,
                 width: 335,
               ),
@@ -204,7 +233,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
       switch (i) {
         case 0:
           return PieChartSectionData(
-            color: Colors.blue,
+            color: Theme.of(context).colorTheme.lightBlueColor,
             value: 40,
             title: '40%',
             radius: radius,
@@ -217,7 +246,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
           );
         case 1:
           return PieChartSectionData(
-            color: Colors.red,
+            color: Theme.of(context).colorTheme.orangeColor,
             value: 20,
             title: '30%',
             radius: radius,
@@ -230,7 +259,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
           );
         case 2:
           return PieChartSectionData(
-            color: Colors.green,
+            color: Colors.lightBlue,
             value: 20,
             title: '20%',
             radius: radius,
@@ -243,7 +272,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
           );
         case 3:
           return PieChartSectionData(
-            color: Colors.yellow,
+            color: Colors.indigoAccent,
             value: 10,
             title: '10%',
             radius: radius,
@@ -256,7 +285,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
           );
         case 4:
           return PieChartSectionData(
-            color: Colors.orange,
+            color: Colors.purpleAccent,
             value: 10,
             title: '10%',
             radius: radius,

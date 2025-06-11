@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_expense_traker/layouts/bottom_sheet.dart';
 import 'package:flutter_expense_traker/layouts/home.dart';
 import 'package:flutter_expense_traker/layouts/profile.dart';
 import 'package:flutter_expense_traker/layouts/statistic.dart';
+import 'package:flutter_expense_traker/theme/theme_extension.dart';
 import 'package:flutter_expense_traker/theme/theme_widget.dart';
 
 Future<void> main() async {
@@ -17,12 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       //it can found the theme  in theme_widget.dart in theme folder
-      theme: ThemeData.light(useMaterial3: true).copyWith(
-        bottomSheetTheme: BottomSheetThemeData(
-          backgroundColor: Color.fromARGB(255, 255, 255, 255),
-        ),
-        textTheme: getThemeData.textTheme,
-      ),
+      theme: AppTheme.lightTheme,
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.light,
       home: const MainPageWithNav(),
@@ -54,37 +51,48 @@ class _MainPageWithNavState extends State<MainPageWithNav> {
   ];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(child: _widgetOptions.elementAt(_selectedIndex)),
-      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: const MyFloatingActionButton(),
-      bottomNavigationBar: BottomAppBar(
-        notchMargin: 12,
-        shape: CircularNotchedRectangle(),
-        height: 65,
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: () {
-                _onItemTapped(0);
-              },
-              icon: const Icon(Icons.home, size: 28),
-            ),
-            IconButton(
-              onPressed: () {
-                _onItemTapped(1);
-              },
-              icon: const Icon(Icons.stacked_bar_chart_outlined, size: 28),
-            ),
-            const Spacer(),
-            IconButton(
-              onPressed: () {
-                _onItemTapped(2);
-              },
-              icon: const Icon(Icons.person, size: 28),
-            ),
-          ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.white,
+        systemNavigationBarColor: Colors.white,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: SafeArea(child: _widgetOptions.elementAt(_selectedIndex)),
+        floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: const MyFloatingActionButton(),
+        bottomNavigationBar: BottomAppBar(
+          surfaceTintColor: Colors.transparent,
+          color: Theme.of(context).colorTheme.lightGreyColor,
+          notchMargin: 12,
+          elevation: 12,
+          shape: CircularNotchedRectangle(),
+          height: 65,
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  _onItemTapped(0);
+                },
+                icon: const Icon(Icons.home, size: 28),
+              ),
+              IconButton(
+                onPressed: () {
+                  _onItemTapped(1);
+                },
+                icon: const Icon(Icons.stacked_bar_chart_outlined, size: 28),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  _onItemTapped(2);
+                },
+                icon: const Icon(Icons.person, size: 28),
+              ),
+            ],
+          ),
         ),
       ),
     );

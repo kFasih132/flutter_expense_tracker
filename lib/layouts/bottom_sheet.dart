@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/theme/theme_extension.dart';
 import 'package:flutter_expense_traker/widgets/round_container.dart';
 import 'package:intl/intl.dart';
 
@@ -16,6 +17,7 @@ class _BottomSheetDialogForAddingTransactionState
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _timeController = TextEditingController();
   String groupValue = 'Expense'; // Example group value for radio button
   final String expense = 'Expense';
   final String income = 'Income';
@@ -40,10 +42,25 @@ class _BottomSheetDialogForAddingTransactionState
     });
   }
 
+  void onTapTimePicker(BuildContext context) {
+    showTimePicker(context: context, initialTime: TimeOfDay.now()).then((
+      selectedTime,
+    ) {
+      if (selectedTime != null) {
+        final formatted = DateFormat(
+          'HH:mm',
+        ).format(DateTime(0, 0, 0, selectedTime.hour, selectedTime.minute));
+        _timeController.text = formatted;
+        print('Selected time: $selectedTime');
+      }
+    });
+  }
+
   // Focus nodes for the text fields
   final FocusNode _amountFocusNode = FocusNode();
   final FocusNode _noteFocusNode = FocusNode();
   final FocusNode _dateFocusNode = FocusNode();
+  final FocusNode _timeFocusNode = FocusNode();
 
   @override
   void dispose() {
@@ -53,6 +70,8 @@ class _BottomSheetDialogForAddingTransactionState
     _noteFocusNode.dispose();
     _dateController.dispose();
     _dateFocusNode.dispose();
+    _timeController.dispose();
+    _timeFocusNode.dispose();
     super.dispose();
   }
 
@@ -67,7 +86,13 @@ class _BottomSheetDialogForAddingTransactionState
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 20,
           children: [
-            const Text('add Transaction'),
+            Text(
+              'add Transaction',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
             //TODO: Add validator to the amount field
             MyTextFeild(
               controller: _amountController,
@@ -103,14 +128,36 @@ class _BottomSheetDialogForAddingTransactionState
                 ],
               ),
             ),
-            MyTextFeild(
-              controller: _dateController,
-              focusNode: _dateFocusNode,
-              labelText: 'Date',
-              hintText: 'Select date',
-              icon: Icons.calendar_month_rounded,
-              keyboardType: TextInputType.none,
-              onTap: () => onTapDatePicker(context),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: MyTextFeild(
+                    controller: _dateController,
+                    focusNode: _dateFocusNode,
+                    hintText: 'Select date',
+                    icon: Icons.calendar_month_rounded,
+                    keyboardType: TextInputType.none,
+                    readOnly: true,
+                    onTap: () => onTapDatePicker(context),
+                  ),
+                ),
+                const Spacer(flex: 1),
+                Expanded(
+                  flex: 3,
+                  child: MyTextFeild(
+                    controller: _timeController,
+                    focusNode: _timeFocusNode,
+                    readOnly: true,
+
+                    hintText: 'Select Time',
+                    icon: Icons.calendar_month_rounded,
+                    keyboardType: TextInputType.none,
+                    onTap: () => onTapTimePicker(context),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -133,6 +180,7 @@ class MyTextFeild extends StatelessWidget {
     this.maxLength,
     this.validator,
     this.onTap,
+    this.readOnly = false,
   });
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -145,6 +193,7 @@ class MyTextFeild extends StatelessWidget {
   final int? maxLength;
   final String? Function(String?)? validator;
   final VoidCallback? onTap;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -153,12 +202,13 @@ class MyTextFeild extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         //TODO: add real color from theme
-        color: Color(0xffe5e7eb),
+        color: Theme.of(context).colorTheme.lightGreyColor,
       ),
       child: Center(
         child: TextFormField(
           controller: controller,
           focusNode: focusNode,
+          readOnly: readOnly,
           maxLines: maxLines,
           maxLength: maxLength,
           onTap: onTap,

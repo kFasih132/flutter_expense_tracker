@@ -8,6 +8,7 @@ class RoundContainer extends StatelessWidget {
     this.color,
     this.child,
     this.margin,
+    this.border,
     this.radius = 43,
     this.padding = 8,
   });
@@ -18,6 +19,7 @@ class RoundContainer extends StatelessWidget {
   final double radius;
   final double padding;
   final EdgeInsetsGeometry? margin;
+  final BoxBorder? border;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,7 @@ class RoundContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(radius),
+        border: border,
       ),
       child: child,
     );

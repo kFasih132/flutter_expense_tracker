@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/theme/theme_extension.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,17 +12,20 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        MySliverAppeBar(name: 'Flutter'),
-        SliverToBoxAdapter(child: StatsCard()),
-        SliverAnimatedList(
-          initialItemCount: 10, // Example item count
-          itemBuilder: (context, index, animation) {
-            return const TransactionListTile();
-          },
-        ),
-      ],
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: CustomScrollView(
+        slivers: [
+          MySliverAppeBar(name: 'Flutter'),
+          SliverToBoxAdapter(child: StatsCard()),
+          SliverAnimatedList(
+            initialItemCount: 10, // Example item count
+            itemBuilder: (context, index, animation) {
+              return const TransactionListTile();
+            },
+          ),
+        ],
+      ),
     ); // Using MySliverAppeBar
   }
 }
@@ -104,21 +108,64 @@ class _StatsCardState extends State<StatsCard> {
   //TODO: add real data from database
   // This function generates a list of BarChartGroupData for the bar chart.
   List<BarChartGroupData> showingGroups() => List.generate(7, (i) {
+    var barColor = Theme.of(context).colorTheme.orangeColor;
+
     switch (i) {
       case 0:
-        return makeGroupData(0, 5, isTouched: i == touchedIndex);
+        return makeGroupData(
+          0,
+          5,
+          barColor: barColor,
+
+          isTouched: i == touchedIndex,
+        );
       case 1:
-        return makeGroupData(1, 6.5, isTouched: i == touchedIndex);
+        return makeGroupData(
+          1,
+          6.5,
+          barColor: barColor,
+
+          isTouched: i == touchedIndex,
+        );
       case 2:
-        return makeGroupData(2, 5, isTouched: i == touchedIndex);
+        return makeGroupData(
+          2,
+          5,
+          barColor: barColor,
+
+          isTouched: i == touchedIndex,
+        );
       case 3:
-        return makeGroupData(3, 7.5, isTouched: i == touchedIndex);
+        return makeGroupData(
+          3,
+          7.5,
+          barColor: barColor,
+
+          isTouched: i == touchedIndex,
+        );
       case 4:
-        return makeGroupData(4, 9, isTouched: i == touchedIndex);
+        return makeGroupData(
+          4,
+          9,
+          barColor: barColor,
+
+          isTouched: i == touchedIndex,
+        );
       case 5:
-        return makeGroupData(5, 11.5, isTouched: i == touchedIndex);
+        return makeGroupData(
+          5,
+          11.5,
+          barColor: barColor,
+
+          isTouched: i == touchedIndex,
+        );
       case 6:
-        return makeGroupData(6, 6.5, isTouched: i == touchedIndex);
+        return makeGroupData(
+          6,
+          6.5,
+          barColor: barColor,
+          isTouched: i == touchedIndex,
+        );
       default:
         return throw Error();
     }
@@ -215,6 +262,7 @@ class _StatsCardState extends State<StatsCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).colorTheme.lightGreyColor,
       margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       elevation: 6,
@@ -225,7 +273,12 @@ class _StatsCardState extends State<StatsCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('outcome', style: Theme.of(context).textTheme.titleMedium),
-            Text('120000', style: Theme.of(context).textTheme.headlineMedium),
+            Text(
+              '120000',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
             SizedBox(height: 16),
             SizedBox(
               height: 200,

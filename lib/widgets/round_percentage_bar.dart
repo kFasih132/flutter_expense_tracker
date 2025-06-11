@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/theme/theme_extension.dart';
 import 'package:flutter_expense_traker/widgets/round_container.dart';
 
 class RoundPercentageBar extends StatefulWidget {
@@ -28,14 +29,23 @@ class _RoundPercentageBarState extends State<RoundPercentageBar> {
           alignment: Alignment.centerLeft,
           child: SizedBox(
             width: widget.width * percentage,
-            child: RoundContainer(height: double.infinity, color: widget.color),
+            child: RoundContainer(
+              height: double.infinity,
+              color: widget.color,
+              radius: 8,
+            ),
           ),
         ),
         Align(
           alignment: Alignment.centerLeft,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('${widget.percentage}'),
+            child: Text(
+              '${widget.percentage}',
+              style: TextStyle(
+                color: Theme.of(context).colorTheme.lightGreyColor,
+              ),
+            ),
           ),
         ),
         Align(
