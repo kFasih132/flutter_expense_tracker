@@ -62,6 +62,25 @@ class _BottomSheetDialogForAddingTransactionState
   final FocusNode _dateFocusNode = FocusNode();
   final FocusNode _timeFocusNode = FocusNode();
 
+  final List<String> _categoryNames = [
+    'Food',
+    'Transportation',
+    'Entertainment',
+    'Utilities',
+    'Other',
+  ];
+
+  // State variable to hold the currently selected category.
+  String? _selectedCategory;
+
+  void _handleCategoryTap(String category) {
+    setState(() {
+      _selectedCategory = category; // Update the selected category
+    });
+    // You can also pass this category to an upper widget using a callback function here.
+    print('Selected Category: $category'); // For demonstration
+  }
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -101,7 +120,22 @@ class _BottomSheetDialogForAddingTransactionState
               keyboardType: TextInputType.number,
               maxLength: 10,
             ),
-            const CategoryList(),
+            Wrap(
+              spacing: 8.0, // Horizontal space between items
+              runSpacing: 8.0, // Vertical space between lines of items
+              children:
+                  _categoryNames.map((category) {
+                    // Changed 'categories' to '_categoryNames'
+                    return RoundContainer2(
+                      onTap:
+                          () =>
+                              _handleCategoryTap(category), // Pass tap handler
+                      isSelected:
+                          _selectedCategory == category, // Set selection state
+                      child: Text(category), // Display category text
+                    );
+                  }).toList(),
+            ),
             MyTextFeild(
               controller: _noteController,
               focusNode: _noteFocusNode,
@@ -201,7 +235,6 @@ class MyTextFeild extends StatelessWidget {
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        //TODO: add real color from theme
         color: Theme.of(context).colorTheme.lightGreyColor,
       ),
       child: Center(

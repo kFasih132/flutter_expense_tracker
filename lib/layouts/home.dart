@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/provider/user_provider.dart';
 import 'package:flutter_expense_traker/theme/theme_extension.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,11 +14,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
     return ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: CustomScrollView(
         slivers: [
-          MySliverAppeBar(name: 'Flutter'),
+          MySliverAppeBar(name: userProvider.currentUser.name),
           SliverToBoxAdapter(child: StatsCard()),
           SliverAnimatedList(
             initialItemCount: 10, // Example item count

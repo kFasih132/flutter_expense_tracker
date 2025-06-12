@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/provider/user_provider.dart';
 import 'package:flutter_expense_traker/theme/theme_extension.dart';
 import 'package:flutter_expense_traker/widgets/round_container.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -20,6 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    var userPrrovider = Provider.of<UserProvider>(context, listen: false);
     return ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: SizedBox.expand(
@@ -38,12 +41,12 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'User Name',
+                userPrrovider.currentUser.name ?? 'Unknown',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text('Email:   '),
+              Text(userPrrovider.currentUser.email ?? 'Unknown'),
               const SizedBox(height: 60),
               RoundContainer(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
