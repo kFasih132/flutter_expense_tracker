@@ -1,19 +1,31 @@
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
 
+part 'user.g.dart';
+
+@HiveType(typeId: 3)
 class User {
+  @HiveField(0)
   String? userId;
+  @HiveField(1)
   String? email;
+  @HiveField(2)
   String? name;
+  @HiveField(3)
   String? currency;
+  @HiveField(4)
   String? createdAt;
+  @HiveField(5)
+  int? isLoggedIn;
   User({
     this.userId,
     this.email,
     this.name,
     this.currency,
     this.createdAt,
+    this.isLoggedIn,
   });
   static const String tableName = 'User';
   static const String columnUserId = 'UserId';
@@ -21,16 +33,17 @@ class User {
   static const String columnName = 'Name';
   static const String columnCurrency = 'Currency';
   static const String columnCreatedAt = 'CreatedAt';
+  static const String columnIsLoggedIn = 'IsLoggedIn';
   static const String createTableSQL = '''
   CREATE TABLE IF NOT EXISTS $tableName (
       $columnUserId TEXT PRIMARY KEY,
       $columnEmail TEXT NOT NULL UNIQUE,
       $columnName TEXT,
       $columnCurrency TEXT DEFAULT 'USD',
-      $columnCreatedAt TEXT DEFAULT CURRENT_TIMESTAMP
+      $columnCreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+      $columnIsLoggedIn INTEGER DEFAULT 0
     )
   ''';
-  
 
   User copyWith({
     ValueGetter<String?>? userId,
@@ -38,6 +51,7 @@ class User {
     ValueGetter<String?>? name,
     ValueGetter<String?>? currency,
     ValueGetter<String?>? createdAt,
+    ValueGetter<int?>? isLoggedIn,
   }) {
     return User(
       userId: userId != null ? userId() : this.userId,
@@ -45,6 +59,7 @@ class User {
       name: name != null ? name() : this.name,
       currency: currency != null ? currency() : this.currency,
       createdAt: createdAt != null ? createdAt() : this.createdAt,
+      isLoggedIn: isLoggedIn != null ? isLoggedIn() : this.isLoggedIn,
     );
   }
 
@@ -55,6 +70,7 @@ class User {
       'name': name,
       'currency': currency,
       'createdAt': createdAt,
+      'isLoggedIn': isLoggedIn ?? 0,
     };
   }
 
@@ -65,6 +81,7 @@ class User {
       name: map['name'],
       currency: map['currency'],
       createdAt: map['createdAt'],
+      isLoggedIn: map['isLoggedIn'] ?? 0,
     );
   }
 
@@ -74,27 +91,29 @@ class User {
 
   @override
   String toString() {
-    return 'User(userId: $userId, email: $email, name: $name, currency: $currency, createdAt: $createdAt)';
+    return 'User(userId: $userId, email: $email, name: $name, currency: $currency, createdAt: $createdAt, isLoggedIn: $isLoggedIn)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is User &&
-      other.userId == userId &&
-      other.email == email &&
-      other.name == name &&
-      other.currency == currency &&
-      other.createdAt == createdAt;
+        other.userId == userId &&
+        other.email == email &&
+        other.name == name &&
+        other.currency == currency &&
+        other.createdAt == createdAt &&
+        other.isLoggedIn == isLoggedIn;
   }
 
   @override
   int get hashCode {
     return userId.hashCode ^
-      email.hashCode ^
-      name.hashCode ^
-      currency.hashCode ^
-      createdAt.hashCode;
+        email.hashCode ^
+        name.hashCode ^
+        currency.hashCode ^
+        createdAt.hashCode ^
+        isLoggedIn.hashCode;
   }
 }

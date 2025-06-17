@@ -4,14 +4,26 @@ import 'package:flutter/widgets.dart';
 
 import 'package:flutter_expense_traker/data_base/category.dart';
 import 'package:flutter_expense_traker/data_base/user.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+part 'budget.g.dart';
+
+
+@HiveType(typeId: 0)
 class Budget {
+  @HiveField(0)
   int? budgetId;
+  @HiveField(1) 
   String? userId;
+  @HiveField(2)
   int? categoryId;
+  @HiveField(3)
   num? budgetAmount;
+  @HiveField(4)
   DateTime? startDate;
+  @HiveField(5)
   DateTime? endDate;
+  @HiveField(6)
   bool? isActive;
   Budget({
     this.budgetId,

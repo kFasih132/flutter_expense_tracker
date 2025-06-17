@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_expense_traker/data_base/db.dart';
 import 'package:flutter_expense_traker/layouts/bottom_sheet.dart';
 import 'package:flutter_expense_traker/layouts/home.dart';
 import 'package:flutter_expense_traker/layouts/login_page.dart';
@@ -13,6 +14,11 @@ import 'package:flutter_expense_traker/widgets/bottom_appBar_icon.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
+    WidgetsFlutterBinding.ensureInitialized(); // Required for async operations before runApp
+
+  // Initialize Hive
+  await DbService().initHive();
+
   runApp(const MyApp());
 }
 
@@ -41,7 +47,7 @@ class MyApp extends StatelessWidget {
 enum AuthMode { login, signup } // Define authentication modes
 
 class AuthWrapper extends StatefulWidget {
-  const AuthWrapper({Key? key}) : super(key: key);
+  const AuthWrapper({super.key});
 
   @override
   State<AuthWrapper> createState() => _AuthWrapperState();

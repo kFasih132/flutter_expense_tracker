@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/data_base/category.dart';
+import 'package:flutter_expense_traker/data_base/db.dart';
+import 'package:flutter_expense_traker/data_base/transactions.dart';
 import 'package:flutter_expense_traker/theme/theme_extension.dart';
 import 'package:flutter_expense_traker/widgets/round_container.dart';
 import 'package:intl/intl.dart';
@@ -18,9 +21,9 @@ class _BottomSheetDialogForAddingTransactionState
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
-  String groupValue = 'Expense'; // Example group value for radio button
-  final String expense = 'Expense';
-  final String income = 'Income';
+  String groupValue = 'expense'; // Example group value for radio button
+  final String expense = 'expense';
+  final String income = 'income';
   void onChanged(String? value) {
     setState(() {
       groupValue = value!;
@@ -61,6 +64,11 @@ class _BottomSheetDialogForAddingTransactionState
   final FocusNode _noteFocusNode = FocusNode();
   final FocusNode _dateFocusNode = FocusNode();
   final FocusNode _timeFocusNode = FocusNode();
+  Future<List<Categories>>? catigoories;
+
+  Future<List<Categories>> getCategories() async {
+    return await DbService().getAllCategories();
+  }
 
   final List<String> _categoryNames = [
     'Food',
@@ -72,13 +80,25 @@ class _BottomSheetDialogForAddingTransactionState
 
   // State variable to hold the currently selected category.
   String? _selectedCategory;
+  String? categoryId;
 
-  void _handleCategoryTap(String category) {
+  void _handleCategoryTap(Categories category) {
     setState(() {
-      _selectedCategory = category; // Update the selected category
+      _selectedCategory = category.name;
+      categoryId = category.categoryId;
+      // Update the selected category
     });
     // You can also pass this category to an upper widget using a callback function here.
     print('Selected Category: $category'); // For demonstration
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    catigoories = getCategories();
+    _dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    _timeController.text = DateFormat('HH:mm').format(DateTime.now());
   }
 
   @override
@@ -112,7 +132,6 @@ class _BottomSheetDialogForAddingTransactionState
               ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            //TODO: Add validator to the amount field
             MyTextFeild(
               controller: _amountController,
               focusNode: _amountFocusNode,
@@ -120,22 +139,28 @@ class _BottomSheetDialogForAddingTransactionState
               keyboardType: TextInputType.number,
               maxLength: 10,
             ),
-            Wrap(
-              spacing: 8.0, // Horizontal space between items
-              runSpacing: 8.0, // Vertical space between lines of items
-              children:
-                  _categoryNames.map((category) {
-                    // Changed 'categories' to '_categoryNames'
-                    return RoundContainer2(
-                      onTap:
-                          () =>
-                              _handleCategoryTap(category), // Pass tap handler
-                      isSelected:
-                          _selectedCategory == category, // Set selection state
-                      child: Text(category), // Display category text
-                    );
-                  }).toList(),
+            FutureBuilder(
+              future: catigoories,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List<Categories>? data = snapshot.data;
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children:
+                        data!.map((e) {
+                          return RoundContainer2(
+                            onTap: () => _handleCategoryTap(e),
+                            isSelected: _selectedCategory == e.name,
+                            child: Text(e.name ?? 'no  name'),
+                          );
+                        }).toList(),
+                  );
+                } else {}
+                return CircularProgressIndicator();
+              },
             ),
+
             MyTextFeild(
               controller: _noteController,
               focusNode: _noteFocusNode,
@@ -144,7 +169,12 @@ class _BottomSheetDialogForAddingTransactionState
               maxLines: 2,
             ),
             ListTile(
-              title: const Text('Transaction Type'),
+              title: Text(
+                'Transaction Type',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
               subtitle: Row(
                 children: [
                   Radio.adaptive(
@@ -170,7 +200,7 @@ class _BottomSheetDialogForAddingTransactionState
                   child: MyTextFeild(
                     controller: _dateController,
                     focusNode: _dateFocusNode,
-                    hintText: 'Select date',
+                    hintText: DateFormat('dd/MM/yyyy').format(DateTime.now()),
                     icon: Icons.calendar_month_rounded,
                     keyboardType: TextInputType.none,
                     readOnly: true,
@@ -185,10 +215,64 @@ class _BottomSheetDialogForAddingTransactionState
                     focusNode: _timeFocusNode,
                     readOnly: true,
 
-                    hintText: 'Select Time',
+                    hintText: DateFormat('HH:mm').format(DateTime.now()),
                     icon: Icons.calendar_month_rounded,
                     keyboardType: TextInputType.none,
                     onTap: () => onTapTimePicker(context),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepOrange,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ), //TODO: add Transac tion to dataBase
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        Navigator.pop(context);
+                        try {
+                          DbService().insertTransaction(
+                            Transactions(
+                              amount: num.parse(
+                                _amountController.text.toString(),
+                              ),
+                              userId: 'Fasih/#12',
+                              date: DateFormat(
+                                'dd/mm/yyyy',
+                              ).parse(_dateController.text),
+                              time: _timeController.text,
+                              transactionType: groupValue,
+                              note: _noteController.text,
+                              description: _noteController.text,
+                              categoryId: 1,
+                            ),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('data invalid or any error 4e: $e'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: Text(
+                      'Add',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -264,24 +348,6 @@ class MyTextFeild extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-//TODO: add real category list
-class CategoryList extends StatelessWidget {
-  const CategoryList({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      children: [
-        RoundContainer(child: Text('Food')),
-        RoundContainer(child: Text('Transportation')),
-        RoundContainer(child: Text('Entertainment')),
-        RoundContainer(child: Text('Utilities')),
-        RoundContainer(child: Text('Other')),
-      ],
     );
   }
 }

@@ -4,16 +4,30 @@ import 'package:flutter/widgets.dart';
 
 import 'package:flutter_expense_traker/data_base/category.dart';
 import 'package:flutter_expense_traker/data_base/user.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+
+part 'transactions.g.dart';
+
+@HiveType(typeId: 2)
 class Transactions {
+  @HiveField(0)
   String? transactionId;
+  @HiveField(1)
   String? userId;
+  @HiveField(2)
   DateTime? date;
+  @HiveField(3)
   String? time;
+  @HiveField(4)
   num? amount;
+  @HiveField(5)
   int? categoryId;
+  @HiveField(6)
   String? description;
+  @HiveField(7)
   String? transactionType;
+  @HiveField(8)
   String? note;
   Transactions({
     this.transactionId,
@@ -50,12 +64,14 @@ class Transactions {
       $columnAmount REAL NOT NULL,
       $columnCategoryId INTEGER NOT NULL,
       $columnDescription TEXT,
-      $columnTransactionType TEXT NOT NULL CHECK(type IN ('$expense', '$income')),
-      $columnNote TEXT
+      $columnTransactionType TEXT NOT NULL CHECK($columnTransactionType IN ('$expense', '$income')),
+      $columnNote TEXT,
       FOREIGN KEY ($columnUserId) REFERENCES ${User.tableName}($columnUserId),
       FOREIGN KEY ($columnCategoryId) REFERENCES ${Categories.tableName}($columnCategoryId)
     )
   ''';
+
+ 
 
   Transactions copyWith({
     ValueGetter<String?>? transactionId,
@@ -69,16 +85,14 @@ class Transactions {
     ValueGetter<String?>? note,
   }) {
     return Transactions(
-      transactionId:
-          transactionId != null ? transactionId() : this.transactionId,
+      transactionId: transactionId != null ? transactionId() : this.transactionId,
       userId: userId != null ? userId() : this.userId,
       date: date != null ? date() : this.date,
       time: time != null ? time() : this.time,
       amount: amount != null ? amount() : this.amount,
       categoryId: categoryId != null ? categoryId() : this.categoryId,
       description: description != null ? description() : this.description,
-      transactionType:
-          transactionType != null ? transactionType() : this.transactionType,
+      transactionType: transactionType != null ? transactionType() : this.transactionType,
       note: note != null ? note() : this.note,
     );
   }
@@ -101,10 +115,7 @@ class Transactions {
     return Transactions(
       transactionId: map['transactionId'],
       userId: map['userId'],
-      date:
-          map['date'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(map['date'])
-              : null,
+      date: map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date']) : null,
       time: map['time'],
       amount: map['amount'],
       categoryId: map['categoryId']?.toInt(),
@@ -116,8 +127,7 @@ class Transactions {
 
   String toJson() => json.encode(toMap());
 
-  factory Transactions.fromJson(String source) =>
-      Transactions.fromMap(json.decode(source));
+  factory Transactions.fromJson(String source) => Transactions.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -127,30 +137,30 @@ class Transactions {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
+  
     return other is Transactions &&
-        other.transactionId == transactionId &&
-        other.userId == userId &&
-        other.date == date &&
-        other.time == time &&
-        other.amount == amount &&
-        other.categoryId == categoryId &&
-        other.description == description &&
-        other.transactionType == transactionType &&
-        other.note == note;
+      other.transactionId == transactionId &&
+      other.userId == userId &&
+      other.date == date &&
+      other.time == time &&
+      other.amount == amount &&
+      other.categoryId == categoryId &&
+      other.description == description &&
+      other.transactionType == transactionType &&
+      other.note == note;
   }
 
   @override
   int get hashCode {
     return transactionId.hashCode ^
-        userId.hashCode ^
-        date.hashCode ^
-        time.hashCode ^
-        amount.hashCode ^
-        categoryId.hashCode ^
-        description.hashCode ^
-        transactionType.hashCode ^
-        note.hashCode;
+      userId.hashCode ^
+      date.hashCode ^
+      time.hashCode ^
+      amount.hashCode ^
+      categoryId.hashCode ^
+      description.hashCode ^
+      transactionType.hashCode ^
+      note.hashCode;
   }
 }
 

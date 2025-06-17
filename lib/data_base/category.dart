@@ -1,12 +1,22 @@
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
+import 'package:sqflite/sqflite.dart';
 
+ part 'category.g.dart';
+
+@HiveType(typeId: 1)
 class Categories {
+  @HiveField(0)
   String? categoryId;
+  @HiveField(1)
   String? name;
+   @HiveField(2)
   String? categoryType;
+  @HiveField(3)
   String? icon;
+  
   Categories({this.categoryId, this.name, this.categoryType, this.icon});
 
   static const String tableName = 'Categories';
@@ -19,7 +29,7 @@ class Categories {
   CREATE TABLE IF NOT EXISTS $tableName (
       $columnCategoryId INTEGER PRIMARY KEY AUTOINCREMENT,
       $columnName TEXT NOT NULL UNIQUE,
-      $columnCategoryType TEXT NOT NULL CHECK(type IN ('expense', 'income')),
+      $columnCategoryType TEXT NOT NULL CHECK($columnCategoryType IN ('expense', 'income')),
       $columnIcon TEXT
     )
   ''';
@@ -84,4 +94,33 @@ class Categories {
         categoryType.hashCode ^
         icon.hashCode;
   }
+}
+
+Future<void> insertDefaultCategories(Database db) async {
+  // Expense Categories
+  await db.insert(Categories.tableName, {
+    Categories.columnName: 'Food',
+    Categories.columnCategoryType: 'expense',
+    Categories.columnIcon: 'icon_food', // Replace with actual icon names
+  });
+  await db.insert(Categories.tableName, {
+    Categories.columnName: 'Transport',
+    Categories.columnCategoryType: 'expense',
+    Categories.columnIcon: 'icon_transport',
+  });
+  await db.insert(Categories.tableName, {
+    Categories.columnName: 'Utilities',
+    Categories.columnCategoryType: 'expense',
+    Categories.columnIcon: 'icon_utilities',
+  });
+  await db.insert(Categories.tableName, {
+    Categories.columnName: 'Entertainment',
+    Categories.columnCategoryType: 'expense',
+    Categories.columnIcon: 'icon_entertainment',
+  });
+  await db.insert(Categories.tableName, {
+    Categories.columnName: 'Other',
+    Categories.columnCategoryType: 'expense',
+    Categories.columnIcon: 'icon_shopping',
+  });
 }

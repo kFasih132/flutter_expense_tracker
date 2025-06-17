@@ -49,50 +49,62 @@ class _ProfilePageState extends State<ProfilePage> {
               Text(userPrrovider.currentUser.email ?? 'Unknown'),
               const SizedBox(height: 60),
               RoundContainer(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                radius: 16,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                radius: 12,
                 color: Theme.of(context).colorTheme.lightGreyColor,
-                border: BoxBorder.all(
-                  color: Theme.of(context).colorTheme.darkGreyColor,
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorTheme.darkGreyColor.withOpacity(0.2),
                   width: 1,
                 ),
-
+                padding: 8,
                 width: double.infinity,
-                padding: 4,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.settings),
+                      leading: Icon(
+                        Icons.settings,
+                        color: Colors.grey.shade700,
+                      ),
                       title: Text(
                         'Settings',
-                        style: Theme.of(context).textTheme.titleLarge,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
                       ),
                       onTap: () {
-                        // Navigate to settings page
+                        // Navigate to settings
                       },
                     ),
-                    Divider(endIndent: 16, indent: 16, thickness: 1.5),
-                    const SizedBox(height: 12),
+                    const Divider(indent: 12, endIndent: 12, thickness: 0.8),
                     CupertinoSlidingSegmentedControl<int>(
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: Colors.grey.shade300,
                       children: segmentedControlChildren,
                       groupValue: _selectedSegment,
                       onValueChanged: onValueChanged,
+                      thumbColor: Colors.white,
                     ),
-                    const SizedBox(height: 12),
-                    Divider(endIndent: 16, indent: 16, thickness: 1.5),
-                    const SizedBox(height: 12),
+                    const Divider(indent: 12, endIndent: 12, thickness: 0.8),
                     ListTile(
-                      leading: const Icon(Icons.logout_outlined),
+                      leading: Icon(
+                        Icons.logout_outlined,
+                        color: Colors.redAccent,
+                      ),
                       title: Text(
-                        'LogOut',
-                        style: Theme.of(context).textTheme.titleLarge,
+                        'Logout',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(color: Colors.redAccent),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
                       ),
                       onTap: () {
-                        // Navigate to settings page
+                        // Logout action
                       },
                     ),
-                    const SizedBox(height: 12),
                   ],
                 ),
               ),
