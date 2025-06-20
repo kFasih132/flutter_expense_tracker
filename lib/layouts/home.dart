@@ -1,31 +1,53 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/data_base/db.dart';
+import 'package:flutter_expense_traker/data_base/transactions.dart';
+import 'package:flutter_expense_traker/layouts/profile.dart';
+import 'package:flutter_expense_traker/layouts/statistic.dart';
+import 'package:flutter_expense_traker/provider/trrasaction_provider.dart';
 import 'package:flutter_expense_traker/provider/user_provider.dart';
 import 'package:flutter_expense_traker/theme/theme_extension.dart';
+import 'package:flutter_expense_traker/widgets/statistic_card.dart';
+import 'package:flutter_expense_traker/widgets/transaction_list.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
+  const HomePage({super.key, required this.animatedListKey});
+  final GlobalKey<SliverAnimatedListState> animatedListKey;
+  GlobalKey<SliverAnimatedListState> get getAnimatedListKey => animatedListKey;
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  Future<List<Transactions>>? future;
+  late List<Transactions> transactions;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    future = DbService().getAllTransactions();
+  }
+
   @override
   Widget build(BuildContext context) {
     var userProvider = Provider.of<UserProvider>(context, listen: false);
+    var transactionProvider = Provider.of<TransactionProvider>(
+      context,
+      listen: false,
+    );
+    transactionProvider.loadTransactionsForCurrentMonth();
+
     return ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: CustomScrollView(
         slivers: [
           MySliverAppeBar(name: userProvider.currentUser.name),
-          SliverToBoxAdapter(child: StatsCard()),
-          SliverAnimatedList(
-            initialItemCount: 10, // Example item count
-            itemBuilder: (context, index, animation) {
-              return const TransactionListTile();
-            },
+          SliverToBoxAdapter(child: FSTC()),
+
+          SliverToBoxAdapter(
+            child: SizedBox(height: 700, child: TransactionListWidget()),
           ),
         ],
       ),
@@ -50,7 +72,6 @@ class MySliverAppeBar extends StatelessWidget {
             text: 'Hello \n',
             style: Theme.of(context).textTheme.displaySmall,
             children: [
-              //TODO : add real name from database
               TextSpan(
                 text: name ?? 'Unknown',
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
@@ -66,7 +87,9 @@ class MySliverAppeBar extends StatelessWidget {
 }
 
 class StatsCard extends StatefulWidget {
-  const StatsCard({super.key});
+  const StatsCard({super.key, required this.transactions});
+  final List<Transactions> transactions;
+  List<Transactions> get getTransactions => transactions;
 
   @override
   State<StatsCard> createState() => _StatsCardState();
@@ -74,10 +97,64 @@ class StatsCard extends StatefulWidget {
 
 class _StatsCardState extends State<StatsCard> {
   final Duration animDuration = const Duration(milliseconds: 250);
+  double _totalOutcome = 0.0;
+  bool _isLoading = true;
+  Map<String, double> weeklyData = {
+    'Monday': 0.0,
+    'Tuesday': 0.0,
+    'Wednesday': 0.0,
+    'Thursday': 0.0,
+    'Friday': 0.0,
+    'Saturday': 0.0,
+    'Sunday': 0.0,
+  };
 
   int touchedIndex = -1;
 
   // making function to remove  the boilerplate code for BarChartGroupData
+  Future<void> _loadChartData() async {
+    setState(() {
+      _isLoading = true; // Set loading state
+    });
+
+    if (widget.transactions.isNotEmpty) {
+      for (var transaction in widget.transactions) {
+        if (transaction.amount != null &&
+            transaction.date != null &&
+            transaction.transactionType == 'expense') {
+          switch (DateFormat('EEEE').format(transaction.date!)) {
+            case 'Monday':
+              weeklyData['Monday'] =
+                  weeklyData['Monday']! + transaction.amount!;
+            case 'Tuesday':
+              weeklyData['Tuesday'] =
+                  weeklyData['Tuesday']! + transaction.amount!;
+            case 'Wednesday':
+              weeklyData['Wednesday'] =
+                  weeklyData['Wednesday']! + transaction.amount!;
+            case 'Thursday':
+              weeklyData['Thursday'] =
+                  weeklyData['Thursday']! + transaction.amount!;
+            case 'Friday':
+              weeklyData['Friday'] =
+                  weeklyData['Friday']! + transaction.amount!;
+            case 'Saturday':
+              weeklyData['Saturday'] =
+                  weeklyData['Saturday']! + transaction.amount!;
+            case 'Sunday':
+              weeklyData['Sunday'] =
+                  weeklyData['Sunday']! + transaction.amount!;
+          }
+          debugPrint(
+            'weekly transaction are ${transaction.toJson().toString()}',
+          );
+        }
+      }
+    }
+    setState(() {
+      _isLoading = false; // Set loading state to false
+    });
+  }
 
   BarChartGroupData makeGroupData(
     int x,
@@ -117,7 +194,7 @@ class _StatsCardState extends State<StatsCard> {
       case 0:
         return makeGroupData(
           0,
-          5,
+          weeklyData['Monday'] ?? 0.0,
           barColor: barColor,
 
           isTouched: i == touchedIndex,
@@ -125,7 +202,7 @@ class _StatsCardState extends State<StatsCard> {
       case 1:
         return makeGroupData(
           1,
-          6.5,
+          weeklyData['Tuesday'] ?? 0.0,
           barColor: barColor,
 
           isTouched: i == touchedIndex,
@@ -133,7 +210,7 @@ class _StatsCardState extends State<StatsCard> {
       case 2:
         return makeGroupData(
           2,
-          5,
+          weeklyData['Wednesday'] ?? 0.0,
           barColor: barColor,
 
           isTouched: i == touchedIndex,
@@ -141,7 +218,7 @@ class _StatsCardState extends State<StatsCard> {
       case 3:
         return makeGroupData(
           3,
-          7.5,
+          weeklyData['Thursday'] ?? 0.0,
           barColor: barColor,
 
           isTouched: i == touchedIndex,
@@ -149,7 +226,7 @@ class _StatsCardState extends State<StatsCard> {
       case 4:
         return makeGroupData(
           4,
-          9,
+          weeklyData['Friday'] ?? 0.0,
           barColor: barColor,
 
           isTouched: i == touchedIndex,
@@ -157,7 +234,7 @@ class _StatsCardState extends State<StatsCard> {
       case 5:
         return makeGroupData(
           5,
-          11.5,
+          weeklyData['Saturday'] ?? 0.0,
           barColor: barColor,
 
           isTouched: i == touchedIndex,
@@ -165,7 +242,7 @@ class _StatsCardState extends State<StatsCard> {
       case 6:
         return makeGroupData(
           6,
-          6.5,
+          weeklyData['Sunday'] ?? 0.0,
           barColor: barColor,
           isTouched: i == touchedIndex,
         );
@@ -263,7 +340,42 @@ class _StatsCardState extends State<StatsCard> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadChartData();
+  }
+
+  @override
+  void didUpdateWidget(covariant StatsCard oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    oldWidget.transactions != widget.transactions;
+    weeklyData = {
+      'Monday': 0.0,
+      'Tuesday': 0.0,
+      'Wednesday': 0.0,
+      'Thursday': 0.0,
+      'Friday': 0.0,
+      'Saturday': 0.0,
+      'Sunday': 0.0,
+    };
+    _loadChartData();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _totalOutcome = 0.0;
+    widget.transactions.forEach((transaction) {
+      if (transaction.amount != null && transaction.transactionType != null) {
+        if (transaction.transactionType == Transactions.income) {
+          _totalOutcome += transaction.amount!;
+        } else {
+          _totalOutcome -= transaction.amount!;
+        }
+      }
+    });
+
     return Card(
       color: Theme.of(context).colorTheme.lightGreyColor,
       margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
@@ -276,8 +388,9 @@ class _StatsCardState extends State<StatsCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('outcome', style: Theme.of(context).textTheme.titleMedium),
+            //TODO: also add here the total remaning balance
             Text(
-              '120000',
+              _totalOutcome.toString(),
               style: Theme.of(
                 context,
               ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -295,6 +408,24 @@ class _StatsCardState extends State<StatsCard> {
         ),
       ),
     );
+  }
+}
+
+class FSTC extends StatefulWidget {
+  const FSTC({super.key});
+
+  @override
+  State<FSTC> createState() => _FSTCState();
+}
+
+class _FSTCState extends State<FSTC> {
+  @override
+  Widget build(BuildContext context) {
+    var transactionProvider = context.watch<TransactionProvider>();
+
+    var listOfTransactions = transactionProvider.transactions;
+
+    return StatsCard(transactions: listOfTransactions);
   }
 }
 
@@ -335,25 +466,38 @@ Widget getTitles(double value, TitleMeta meta) {
   return SideTitleWidget(meta: meta, space: 16, child: text);
 }
 
-//TODO: add real data from database and handle the transaction list
-// This widget represents a list tile for displaying a transaction.
-
 class TransactionListTile extends StatelessWidget {
-  const TransactionListTile({super.key});
+  const TransactionListTile({super.key, required this.transactions});
+  final Transactions transactions;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.monetization_on, size: 32)),
-      title: const Text('Transaction Title'),
-      subtitle: const Text('Transaction Description'),
-      trailing: Column(spacing: 2, children: [Text('data'), Text('data')]),
-      onTap: () {
-        // Handle tap event
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Tapped on Transaction')));
-      },
+      leading: CircleAvatar(
+        backgroundColor: Colors.transparent,
+        child: Image.asset(
+          _getCategoryIconById(transactions.categoryId ?? 'default'),
+        ),
+      ),
+      title: Text(transactions.description ?? 'No description'),
+      subtitle: Text(transactions.note ?? 'not given'),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(DateFormat('dd/MM').format(transactions.date ?? DateTime.now())),
+          Text('Rs ${transactions.amount}'),
+        ],
+      ),
     );
   }
+}
+
+String _getCategoryIconById(String id) {
+  return switch (id) {
+    'cat_food' => 'assets/popcorn.png',
+    'cat_transport' => 'assets/delivery-truck.png',
+    'cat_utilities' => 'assets/utility.png',
+    'cat_entertainment' => 'assets/content.png',
+    _ => 'assets/delivery-box.png',
+  };
 }

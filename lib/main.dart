@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_expense_traker/data_base/category.dart';
 import 'package:flutter_expense_traker/data_base/db.dart';
+import 'package:flutter_expense_traker/data_base/transactions.dart';
 import 'package:flutter_expense_traker/layouts/bottom_sheet.dart';
 import 'package:flutter_expense_traker/layouts/home.dart';
 import 'package:flutter_expense_traker/layouts/login_page.dart';
 import 'package:flutter_expense_traker/layouts/profile.dart';
 import 'package:flutter_expense_traker/layouts/sign_up_page.dart';
 import 'package:flutter_expense_traker/layouts/statistic.dart';
+import 'package:flutter_expense_traker/provider/category_provider.dart';
+import 'package:flutter_expense_traker/provider/trrasaction_provider.dart';
 import 'package:flutter_expense_traker/provider/user_provider.dart';
 import 'package:flutter_expense_traker/theme/theme_extension.dart';
 import 'package:flutter_expense_traker/theme/theme_widget.dart';
@@ -14,7 +18,7 @@ import 'package:flutter_expense_traker/widgets/bottom_appBar_icon.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
-    WidgetsFlutterBinding.ensureInitialized(); // Required for async operations before runApp
+  WidgetsFlutterBinding.ensureInitialized(); // Required for async operations before runApp
 
   // Initialize Hive
   await DbService().initHive();
@@ -27,8 +31,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => UserProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => CategoryProvider(),),
+        FutureProvider<List<Categories>>(
+          create: (context) => DbService().getAllCategories(),
+          initialData: [], // Provide an initial empty list
+        ),
+        ChangeNotifierProvider(create: (context) => TransactionProvider()),
+      ],
+
       child: MaterialApp(
         title: 'Flutter Demo',
         //it can found the theme  in theme_widget.dart in theme folder
@@ -98,12 +111,12 @@ class _AuthWrapperState extends State<AuthWrapper> {
   Widget build(BuildContext context) {
     // Listen to the UserProvider for changes in login status
     final userProvider = Provider.of<UserProvider>(context);
+    
+   
 
     // Conditionally render based on authentication status from UserProvider
     if (userProvider.isLoggedIn) {
-      return MainPageWithNav(
-        initialPageIndex: _initialPageIndexAfterAuth,
-      );
+      return MainPageWithNav(initialPageIndex: _initialPageIndexAfterAuth);
     } else {
       // Show either LoginScreen or SignUpScreen based on _authMode
       if (_authMode == AuthMode.login) {
@@ -130,6 +143,9 @@ class MainPageWithNav extends StatefulWidget {
 }
 
 class _MainPageWithNavState extends State<MainPageWithNav> {
+  GlobalKey<SliverAnimatedListState > listKey = GlobalKey<SliverAnimatedListState>();
+  
+  
   int _selectedIndex = 0;
   void _onItemTapped(int index) {
     setState(() {
@@ -137,11 +153,16 @@ class _MainPageWithNavState extends State<MainPageWithNav> {
     });
   }
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    StatisticPage(),
-    ProfilePage(),
-  ];
+  List<Widget> _widgetOptions = <Widget>[];
+
+  @override
+  void didChangeDependencies() {
+    _widgetOptions = <Widget>[
+      HomePage(animatedListKey: listKey,),
+      StatisticPage(),
+      ProfilePage(),
+    ];
+  }
 
   @override
   void initState() {
@@ -151,7 +172,6 @@ class _MainPageWithNavState extends State<MainPageWithNav> {
 
   @override
   Widget build(BuildContext context) {
-
     var iconColor = Theme.of(context).colorTheme.iconColor;
     var selectedIconColor = Theme.of(context).colorScheme.primary;
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -165,7 +185,9 @@ class _MainPageWithNavState extends State<MainPageWithNav> {
         body: SafeArea(child: _widgetOptions.elementAt(_selectedIndex)),
         floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: const MyFloatingActionButton(),
+        floatingActionButton: MyFloatingActionButton(
+        
+        ),
         bottomNavigationBar: BottomAppBar(
           surfaceTintColor: Colors.transparent,
           color: Theme.of(context).colorTheme.lightGreyColor,
@@ -221,7 +243,9 @@ class _MainPageWithNavState extends State<MainPageWithNav> {
 }
 
 class MyFloatingActionButton extends StatefulWidget {
-  const MyFloatingActionButton({super.key});
+  const MyFloatingActionButton({super.key,});
+  
+
 
   @override
   State<MyFloatingActionButton> createState() => _MyFloatingActionButtonState();
@@ -247,11 +271,15 @@ class _MyFloatingActionButtonState extends State<MyFloatingActionButton> {
           padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
           child: SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.8,
-            child: const BottomSheetDialogForAddingTransaction(),
+            child: BottomSheetDialogForAddingTransaction(
+              
+            ),
           ),
         );
       },
-    );
+    ).then((value) {
+      setState(() {});
+    });
   }
 
   @override
@@ -272,4 +300,6 @@ class _MyFloatingActionButtonState extends State<MyFloatingActionButton> {
  * profile page set krna h
  * card ko adjust krna h
  * end connect with database
+ * create provider for catergory , transaction ,
+ * 5
  */

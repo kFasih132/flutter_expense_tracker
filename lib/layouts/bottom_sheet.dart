@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expense_traker/data_base/category.dart';
 import 'package:flutter_expense_traker/data_base/db.dart';
 import 'package:flutter_expense_traker/data_base/transactions.dart';
+import 'package:flutter_expense_traker/layouts/profile.dart';
+import 'package:flutter_expense_traker/provider/trrasaction_provider.dart';
 import 'package:flutter_expense_traker/theme/theme_extension.dart';
 import 'package:flutter_expense_traker/widgets/round_container.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class BottomSheetDialogForAddingTransaction extends StatefulWidget {
-  const BottomSheetDialogForAddingTransaction({super.key});
+  const BottomSheetDialogForAddingTransaction({
+    super.key,
+    
+  });
+  
 
   @override
   State<BottomSheetDialogForAddingTransaction> createState() =>
@@ -70,17 +77,9 @@ class _BottomSheetDialogForAddingTransactionState
     return await DbService().getAllCategories();
   }
 
-  final List<String> _categoryNames = [
-    'Food',
-    'Transportation',
-    'Entertainment',
-    'Utilities',
-    'Other',
-  ];
-
   // State variable to hold the currently selected category.
-  String? _selectedCategory;
-  String? categoryId;
+  String? _selectedCategory = 'Other';
+  String? categoryId = 'cat_other';
 
   void _handleCategoryTap(Categories category) {
     setState(() {
@@ -116,7 +115,7 @@ class _BottomSheetDialogForAddingTransactionState
 
   @override
   Widget build(BuildContext context) {
-    //TODO: add Styling and functionality to the bottom sheet dialog
+    var transsactionProvider = Provider.of<TransactionProvider>(context);
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -235,27 +234,41 @@ class _BottomSheetDialogForAddingTransactionState
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                    ), //TODO: add Transac tion to dataBase
+                    ),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        Navigator.pop(context);
                         try {
-                          DbService().insertTransaction(
+                          debugPrint(
+                            'adding Date : ${DateFormat('dd/MM/yyyy').parse(_dateController.text)}',
+                          );
+                          debugPrint(
+                            'adding Time : ${DateFormat('HH:mm').parse(_timeController.text)}',
+                          );
+                          debugPrint(
+                            'adding Amount : ${_amountController.text}',
+                          );
+                          transsactionProvider.addTransaction(
                             Transactions(
+                              transactionId:
+                                  '$userId/$groupValue/${DateFormat('dd/MM/yyyy').parse(_dateController.text).toString()}/${DateFormat('HH:mm').parse(_timeController.text).toString()}',
                               amount: num.parse(
                                 _amountController.text.toString(),
                               ),
-                              userId: 'Fasih/#12',
+                              userId: userId,
                               date: DateFormat(
-                                'dd/mm/yyyy',
+                                'dd/MM/yyyy',
                               ).parse(_dateController.text),
-                              time: _timeController.text,
+                              time: DateFormat('HH:mm').format(
+                                DateFormat('HH:mm').parse(_timeController.text),
+                              ),
                               transactionType: groupValue,
                               note: _noteController.text,
-                              description: _noteController.text,
-                              categoryId: 1,
+                              description: _selectedCategory,
+                              categoryId: categoryId ?? 'cat_other',
                             ),
                           );
+                        
+                          // DbService().insertTransaction(        );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -263,6 +276,7 @@ class _BottomSheetDialogForAddingTransactionState
                             ),
                           );
                         }
+                        Navigator.pop(context);
                       }
                     },
                     child: Text(

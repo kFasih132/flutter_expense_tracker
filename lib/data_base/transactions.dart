@@ -1,11 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:flutter_expense_traker/data_base/category.dart';
 import 'package:flutter_expense_traker/data_base/user.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-
 
 part 'transactions.g.dart';
 
@@ -22,7 +21,7 @@ class Transactions {
   @HiveField(4)
   num? amount;
   @HiveField(5)
-  int? categoryId;
+  String? categoryId;
   @HiveField(6)
   String? description;
   @HiveField(7)
@@ -73,29 +72,6 @@ class Transactions {
 
  
 
-  Transactions copyWith({
-    ValueGetter<String?>? transactionId,
-    ValueGetter<String?>? userId,
-    ValueGetter<DateTime?>? date,
-    ValueGetter<String?>? time,
-    ValueGetter<num?>? amount,
-    ValueGetter<int?>? categoryId,
-    ValueGetter<String?>? description,
-    ValueGetter<String?>? transactionType,
-    ValueGetter<String?>? note,
-  }) {
-    return Transactions(
-      transactionId: transactionId != null ? transactionId() : this.transactionId,
-      userId: userId != null ? userId() : this.userId,
-      date: date != null ? date() : this.date,
-      time: time != null ? time() : this.time,
-      amount: amount != null ? amount() : this.amount,
-      categoryId: categoryId != null ? categoryId() : this.categoryId,
-      description: description != null ? description() : this.description,
-      transactionType: transactionType != null ? transactionType() : this.transactionType,
-      note: note != null ? note() : this.note,
-    );
-  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -118,7 +94,7 @@ class Transactions {
       date: map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date']) : null,
       time: map['time'],
       amount: map['amount'],
-      categoryId: map['categoryId']?.toInt(),
+      categoryId: map['categoryId'],
       description: map['description'],
       transactionType: map['transactionType'],
       note: map['note'],
@@ -161,6 +137,30 @@ class Transactions {
       description.hashCode ^
       transactionType.hashCode ^
       note.hashCode;
+  }
+
+  Transactions copyWith({
+    ValueGetter<String?>? transactionId,
+    ValueGetter<String?>? userId,
+    ValueGetter<DateTime?>? date,
+    ValueGetter<String?>? time,
+    ValueGetter<num?>? amount,
+    ValueGetter<String?>? categoryId,
+    ValueGetter<String?>? description,
+    ValueGetter<String?>? transactionType,
+    ValueGetter<String?>? note,
+  }) {
+    return Transactions(
+      transactionId: transactionId != null ? transactionId() : this.transactionId,
+      userId: userId != null ? userId() : this.userId,
+      date: date != null ? date() : this.date,
+      time: time != null ? time() : this.time,
+      amount: amount != null ? amount() : this.amount,
+      categoryId: categoryId != null ? categoryId() : this.categoryId,
+      description: description != null ? description() : this.description,
+      transactionType: transactionType != null ? transactionType() : this.transactionType,
+      note: note != null ? note() : this.note,
+    );
   }
 }
 

@@ -67,11 +67,17 @@ class DbService {
   }
 
   Future<void> insertCategory(Categories category) async {
-    await _categoriesBox.put(category.categoryId, category); // Assuming categoryId is the unique key
+    await _categoriesBox.put(
+      category.categoryId,
+      category,
+    ); // Assuming categoryId is the unique key
   }
 
   Future<void> insertBudget(Budget budget) async {
-    await _budgetBox.put(budget.budgetId, budget); // Assuming budgetId is the unique key
+    await _budgetBox.put(
+      budget.budgetId,
+      budget,
+    ); // Assuming budgetId is the unique key
   }
 
   // --- Fetch All Data ---
@@ -138,31 +144,31 @@ class DbService {
         categoryId: 'cat_food', // Assign a unique ID
         name: 'Food',
         categoryType: 'expense',
-        icon: 'icon_food',
+        icon: 'assets/popcorn.png',
       ),
       Categories(
         categoryId: 'cat_transport',
         name: 'Transport',
         categoryType: 'expense',
-        icon: 'icon_transport',
+        icon: 'assets/delivery-truck.png',
       ),
       Categories(
         categoryId: 'cat_utilities',
         name: 'Utilities',
         categoryType: 'expense',
-        icon: 'icon_utilities',
+        icon: 'assets/utility.png',
       ),
       Categories(
         categoryId: 'cat_entertainment',
         name: 'Entertainment',
         categoryType: 'expense',
-        icon: 'icon_entertainment',
+        icon: 'assets/content.png',
       ),
       Categories(
         categoryId: 'cat_other',
         name: 'Other',
         categoryType: 'expense',
-        icon: 'icon_shopping',
+        icon: 'assets/delivery-box.png',
       ),
       // Add other income/transfer categories if needed
     ];
@@ -197,5 +203,120 @@ class DbService {
     }
     // Re-insert default categories after clearing if desired
     await _insertDefaultCategories();
+  }
+
+  Future<List<Transactions>> getTransactionsForCurrentWeek(
+    String userId,
+  ) async {
+    final transactionsBox = await Hive.openBox<Transactions>(
+      transactionsBoxName,
+    ); // Ensure this box is open
+    final List<Transactions> allTransactions = transactionsBox.values.toList();
+
+    List<Transactions> weeklyTransactions = [];
+
+    // Get the start of the current week (e.g., Monday 00:00:00)
+    DateTime now = DateTime.now();
+    // Adjust to the start of the week (Monday is 1, Sunday is 7 in Dart's weekday)
+    // This will get the Monday of the current week
+    DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    startOfWeek = DateTime(
+      startOfWeek.year,
+      startOfWeek.month,
+      startOfWeek.day,
+      0,
+      0,
+      0,
+    );
+
+    // Get the end of the current week (Sunday 23:59:59)
+    DateTime endOfWeek = startOfWeek.add(const Duration(days: 6));
+    endOfWeek = DateTime(
+      endOfWeek.year,
+      endOfWeek.month,
+      endOfWeek.day,
+      23,
+      59,
+      59,
+    );
+
+    // print('DEBUG: Current week range: $startOfWeek to $endOfWeek');
+
+    for (var transaction in allTransactions) {
+      debugPrint('DEBUG: Checking transaction: ${transaction.date}');
+      // Ensure transactionDate is not null, belongs to the correct user,
+      // and falls within the current week.
+      if (transaction.date != null &&
+          transaction.userId == userId &&
+          transaction.date!.isAfter(
+            startOfWeek.subtract(const Duration(milliseconds: 1)),
+          ) && // Ensure strictly after start
+          transaction.date!.isBefore(
+            endOfWeek.add(const Duration(milliseconds: 1)),
+          )) {
+        // Ensure strictly before end
+        weeklyTransactions.add(transaction);
+      }
+    }
+    // print(
+    //   'DEBUG: Found ${weeklyTransactions.length} transactions for user "$userId" this week.',
+    // );
+    return weeklyTransactions;
+  }
+
+  Future<List<Transactions>> getTransactionsForMonth(
+    String userId,
+    int year,
+    int month,
+  ) async {
+    final transactionsBox = await Hive.openBox<Transactions>(
+      transactionsBoxName,
+    );
+    final List<Transactions> allTransactions = transactionsBox.values.toList();
+
+    List<Transactions> monthlyTransactions = [];
+
+    // Calculate the start of the month (first day, 00:00:00)
+    DateTime startOfMonth = DateTime(year, month, 1, 0, 0, 0);
+
+    // Calculate the end of the month (last day, 23:59:59)
+    // By adding 1 month to the start and subtracting 1 millisecond,
+    // we get the very end of the target month.
+    DateTime endOfMonth = DateTime(
+      year,
+      month + 1,
+      1,
+      0,
+      0,
+      0,
+    ).subtract(const Duration(milliseconds: 1));
+
+    if (kDebugMode) {
+      // print(
+      //   'DEBUG: Filtering transactions for user "$userId" in month $month/$year.',
+      // );
+      // print('DEBUG: Month range: $startOfMonth to $endOfMonth');
+    }
+
+    for (var transaction in allTransactions) {
+      if (transaction.date != null && transaction.userId == userId) {
+        DateTime transactionDate = transaction.date!;
+        // Check if the transaction date falls within the calculated month range
+        if (transactionDate.isAfter(
+              startOfMonth.subtract(const Duration(milliseconds: 1)),
+            ) &&
+            transactionDate.isBefore(
+              endOfMonth.add(const Duration(milliseconds: 1)),
+            )) {
+          monthlyTransactions.add(transaction);
+        }
+      }
+    }
+    if (kDebugMode) {
+      print(
+        'DEBUG: Found ${monthlyTransactions.length} transactions for month $month/$year for user "$userId".',
+      );
+    }
+    return monthlyTransactions;
   }
 }

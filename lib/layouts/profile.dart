@@ -5,6 +5,8 @@ import 'package:flutter_expense_traker/theme/theme_extension.dart';
 import 'package:flutter_expense_traker/widgets/round_container.dart';
 import 'package:provider/provider.dart';
 
+String userId = 'Fasih/#12';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -36,7 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
               CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage(
-                  'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8YW5pbWV8ZW58MHx8MHx8fDA%3D',
+                  'https://plus.unsplash.com/premium_photo-1749885795369-c8a013958e6b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwzMnx8fGVufDB8fHx8fA%3D%3D',
                 ),
               ),
               const SizedBox(height: 20),

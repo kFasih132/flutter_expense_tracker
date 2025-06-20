@@ -1,7 +1,13 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_expense_traker/data_base/transactions.dart';
+import 'package:flutter_expense_traker/provider/trrasaction_provider.dart';
+import 'package:flutter_expense_traker/provider/user_provider.dart';
 import 'package:flutter_expense_traker/theme/theme_extension.dart';
+import 'package:flutter_expense_traker/widgets/badge_widget.dart';
 import 'package:flutter_expense_traker/widgets/round_percentage_bar.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class StatisticPage extends StatefulWidget {
@@ -118,6 +124,19 @@ class PercentageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double totalIncome = 0;
+    double totalExpense = 0;
+
+    var transactionProvider = context.watch<TransactionProvider>();
+    transactionProvider.loadTransactionsForCurrentMonth();
+    transactionProvider.transactions.forEach((element) {
+      if (element.transactionType == Transactions.income) {
+        totalIncome += element.amount ?? 0;
+      } else if (element.transactionType == Transactions.expense) {
+        totalExpense += element.amount ?? 0;
+      }
+    });
+    var percentage = (totalExpense / totalIncome) * 100;
     return Container(
       height: 120,
       padding: const EdgeInsets.all(16.0),
@@ -139,7 +158,7 @@ class PercentageWidget extends StatelessWidget {
                 ),
                 children: [
                   TextSpan(
-                    text: '100\n',
+                    text: '${totalExpense.toStringAsFixed(1)}\n',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -154,8 +173,7 @@ class PercentageWidget extends StatelessWidget {
           Align(
             alignment: Alignment.topRight,
             child: Text(
-              //TODO : Replace with actual month and year
-              'april 2020',
+              DateFormat.yMMM().format(DateTime.now()),
               style: TextStyle(
                 color: Theme.of(context).colorTheme.darkGreyColor,
                 fontSize: 12,
@@ -169,7 +187,7 @@ class PercentageWidget extends StatelessWidget {
               height: 32,
               child: RoundPercentageBar(
                 color: Theme.of(context).colorTheme.lightBlueColor,
-                percentage: 80,
+                percentage: percentage,
                 width: 335,
               ),
             ),
@@ -213,7 +231,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
             borderData: FlBorderData(show: false),
             sectionsSpace: 0,
             centerSpaceRadius: 0,
-            sections: showingSections(),
+            sections: showingSections(context),
           ),
         ),
       ),
@@ -221,20 +239,56 @@ class _PieChartWidgetState extends State<PieChartWidget> {
   }
 
   //TODO: add realDAta to the pie chart and remove the hardcoded values also add badge into it
-  showingSections() {
+  showingSections(BuildContext context) {
     return List.generate(5, (i) {
+      double totalIncome = 0;
+      double totalExpense = 0;
+
+      var transactionProvider = context.watch<TransactionProvider>();
+      transactionProvider.loadTransactionsForCurrentMonth();
+      transactionProvider.transactions.forEach((element) {
+        if (element.transactionType == Transactions.income) {
+          totalIncome += element.amount ?? 0;
+        } else if (element.transactionType == Transactions.expense) {
+          totalExpense += element.amount ?? 0;
+        }
+      });
       final isTouched = i == touchedIndex;
       final fontSize = isTouched ? 20.0 : 16.0;
       final radius = isTouched ? 140.0 : 130.0;
-      final widgetSize = isTouched ? 55.0 : 40.0;
       const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
+      double foodPercentage = getCategoryPercentage(
+        transactions: transactionProvider.transactions,
+        categoryId: 'cat_food',
+        totalExpence: totalExpense,
+      );
+      double transportPercentage = getCategoryPercentage(
+        transactions: transactionProvider.transactions,
+        categoryId: 'cat_transport',
+        totalExpence: totalExpense,
+      );
+       double utilitiesPercentage = getCategoryPercentage(
+        transactions: transactionProvider.transactions,
+        categoryId:  'cat_utilities',
+        totalExpence: totalExpense,
+      );
+      double entertainmentPercentage = getCategoryPercentage(
+        transactions: transactionProvider.transactions,
+        categoryId:  'cat_entertainment',
+        totalExpence: totalExpense,
+      );
+      double otherPercentage = getCategoryPercentage(
+        transactions: transactionProvider.transactions,
+        categoryId:  'cat_other',
+        totalExpence: totalExpense,
+      );
 
       switch (i) {
         case 0:
           return PieChartSectionData(
             color: Theme.of(context).colorTheme.lightBlueColor,
-            value: 40,
-            title: '40%',
+            value: foodPercentage,
+            title: '${foodPercentage.toStringAsFixed(2)}%',
             radius: radius,
             titleStyle: TextStyle(
               fontSize: fontSize,
@@ -242,12 +296,14 @@ class _PieChartWidgetState extends State<PieChartWidget> {
               color: Colors.white,
               shadows: shadows,
             ),
+            badgeWidget: MyBadge(size: 36, svgAsset: 'assets/popcorn.png'),
+            badgePositionPercentageOffset: .98,
           );
         case 1:
           return PieChartSectionData(
             color: Theme.of(context).colorTheme.orangeColor,
-            value: 20,
-            title: '30%',
+            value: transportPercentage,
+            title: '${transportPercentage.toStringAsFixed(2)}%',
             radius: radius,
             titleStyle: TextStyle(
               fontSize: fontSize,
@@ -255,12 +311,17 @@ class _PieChartWidgetState extends State<PieChartWidget> {
               color: Colors.white,
               shadows: shadows,
             ),
+            badgeWidget: MyBadge(
+              size: 36,
+              svgAsset: 'assets/delivery-truck.png',
+            ),
+            badgePositionPercentageOffset: .98,
           );
         case 2:
           return PieChartSectionData(
             color: Colors.lightBlue,
-            value: 20,
-            title: '20%',
+            value: utilitiesPercentage,
+            title: '${utilitiesPercentage.toStringAsFixed(2)}%',
             radius: radius,
             titleStyle: TextStyle(
               fontSize: fontSize,
@@ -268,12 +329,14 @@ class _PieChartWidgetState extends State<PieChartWidget> {
               color: Colors.white,
               shadows: shadows,
             ),
+            badgeWidget: MyBadge(size: 36, svgAsset: 'assets/utility.png'),
+            badgePositionPercentageOffset: .98,
           );
         case 3:
           return PieChartSectionData(
             color: Colors.indigoAccent,
-            value: 10,
-            title: '10%',
+            value: entertainmentPercentage,
+            title: '${entertainmentPercentage.toStringAsFixed(2)}%',
             radius: radius,
             titleStyle: TextStyle(
               fontSize: fontSize,
@@ -281,12 +344,14 @@ class _PieChartWidgetState extends State<PieChartWidget> {
               color: Colors.white,
               shadows: shadows,
             ),
+            badgeWidget: MyBadge(size: 36, svgAsset: 'assets/content.png'),
+            badgePositionPercentageOffset: .98,
           );
         case 4:
           return PieChartSectionData(
             color: Colors.purpleAccent,
-            value: 10,
-            title: '10%',
+            value: otherPercentage,
+            title: '${otherPercentage.toStringAsFixed(2)}%',
             radius: radius,
             titleStyle: TextStyle(
               fontSize: fontSize,
@@ -294,10 +359,29 @@ class _PieChartWidgetState extends State<PieChartWidget> {
               color: Colors.white,
               shadows: shadows,
             ),
+            badgeWidget: MyBadge(size: 36, svgAsset: 'assets/delivery-box.png'),
+            badgePositionPercentageOffset: .98,
           );
         default:
           throw Error();
       }
     });
   }
+}
+
+double getCategoryPercentage({
+  required List<Transactions> transactions,
+  required String categoryId,
+  required double totalExpence,
+}) {
+  double amount = 0;
+  transactions.forEach((element) {
+    if (element.categoryId == categoryId) {
+      if (element.transactionType == Transactions.expense) {
+        amount += element.amount ?? 0;
+      }
+    }
+  });
+  
+  return (amount / totalExpence) * 100;
 }

@@ -41,7 +41,7 @@ class _RoundPercentageBarState extends State<RoundPercentageBar> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              '${widget.percentage}',
+              widget.percentage.toStringAsFixed(2),
               style: TextStyle(
                 color: Theme.of(context).colorTheme.lightGreyColor,
               ),
@@ -52,7 +52,7 @@ class _RoundPercentageBarState extends State<RoundPercentageBar> {
           alignment: Alignment.centerRight,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('${100 - widget.percentage}'),
+            child: Text((100 - widget.percentage).toStringAsFixed(2)),
           ),
         ),
       ],

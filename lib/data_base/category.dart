@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
-import 'package:sqflite/sqflite.dart';
 
  part 'category.g.dart';
 
@@ -96,31 +95,3 @@ class Categories {
   }
 }
 
-Future<void> insertDefaultCategories(Database db) async {
-  // Expense Categories
-  await db.insert(Categories.tableName, {
-    Categories.columnName: 'Food',
-    Categories.columnCategoryType: 'expense',
-    Categories.columnIcon: 'icon_food', // Replace with actual icon names
-  });
-  await db.insert(Categories.tableName, {
-    Categories.columnName: 'Transport',
-    Categories.columnCategoryType: 'expense',
-    Categories.columnIcon: 'icon_transport',
-  });
-  await db.insert(Categories.tableName, {
-    Categories.columnName: 'Utilities',
-    Categories.columnCategoryType: 'expense',
-    Categories.columnIcon: 'icon_utilities',
-  });
-  await db.insert(Categories.tableName, {
-    Categories.columnName: 'Entertainment',
-    Categories.columnCategoryType: 'expense',
-    Categories.columnIcon: 'icon_entertainment',
-  });
-  await db.insert(Categories.tableName, {
-    Categories.columnName: 'Other',
-    Categories.columnCategoryType: 'expense',
-    Categories.columnIcon: 'icon_shopping',
-  });
-}
